@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat App</title>
+    <link rel="icon" href="/img/favicon.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
+    <link rel="stylesheet" href="/css/styles.min.css">
+    <style>
+        .scroll-container::-webkit-scrollbar {
+            display: none; 
+        }
+
+        .scroll-container {
+            scrollbar-width: none; 
+            -ms-overflow-style: none;
+        }
+
+        .content {
+            height: 400px; 
+            background: linear-gradient(to bottom, #f06, transparent);
+        }
+
+        @media (max-width: 768px) { 
+            .sticky-bottom {
+                position: sticky;
+                bottom: 0; 
+                margin-top: 0;
+                background-color: white;
+                z-index: 10; 
+              
+            }
+
+            #sidebar-toggle {
+                z-index: 11;
+            }
+
+            #sidebar {
+                width: 75%;
+            }
+            
+        }
+    </style>
+</head>
+<body class="font-sans antialiased bg-gray-300">
+    <div class="flex flex-col h-screen">
+        <button id="sidebar-toggle" class="fixed top-0 left-0 block w-full p-4 text-center text-white bg-blue-600 sm:hidden">Menu</button>
+        <div class="flex flex-1 overflow-hidden">
+            <div id="sidebar" class="fixed inset-0 w-1/2 p-4 overflow-y-auto text-white transition-transform duration-300 ease-in-out transform -translate-x-full bg-blue-600 sm:w-1/4 sm:overflow-auto sm:relative sm:block sm:translate-x-0">
+                <script id="sidebar-template" type="text/html">
+                    <h2 class="font-semibold">Room name</h2>
+                    <h2 class="mb-4 text-2xl font-semibold text-white">{{room}}</h2>
+                    <h3 class="mb-2 text-lg font-medium">Users</h3>
+                    <ul class="space-y-2">
+                        {{#users}}
+                            <li class="px-2 py-1 bg-blue-500 border border-blue-400 rounded">{{username}}</li>
+                        {{/users}}
+                    </ul>
+                </script>
+            </div>
+            
+            <div class="flex flex-col flex-1 pt-10 ml-0 bg-gray-100 sm:ml-1/4">
+                <div id="messages" class="flex-1 p-4 space-y-4 overflow-y-auto">
+                    <script id="message-template" type="text/html">
+                        <div class="p-4 bg-white rounded-lg shadow message">
+                            <p class="font-semibold text-gray-800">{{username}}
+                                <span class="ml-2 text-sm text-gray-600">{{createdAt}}</span>
+                            </p>
+                            <p class="mt-2 text-gray-700">{{message}}</p>
+                        </div>
+                    </script>
+
+                    <script id="location-message-template" style="display: none;" type="text/html">
+                        <div class="p-4 bg-white rounded-lg shadow message">
+                            <p class="font-semibold text-gray-800">{{username}}
+                                <span class="ml-2 text-sm text-gray-600">{{createdAt}}</span>
+                            </p>
+                            <p class="mt-2"><a href="{{url}}" target="_blank" class="text-blue-500 underline">My current location</a></p>
+                        </div>
+                    </script>
+                </div>
+                
+                <div class="p-4 bg-white border-t sticky-bottom">
+                    <form id="message-form" class="flex items-center space-x-4">
+                        <input name="message" type="text" placeholder="Type a message" required autocomplete="off" class="flex-1 p-2 border border-gray-400 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <button type="submit" class="px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">Send</button>
+                    </form>
+                    <button style="display: none;" id="send-location" class="px-4 py-2 mt-2 text-white bg-green-500 rounded hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500">Send location</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/3.0.1/mustache.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qs/6.8.0/qs.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/chat.js"></script>
+
+    <script>
+        document.getElementById('sidebar-toggle').addEventListener('click', function() {
+            var sidebar = document.getElementById('sidebar');
+            if (sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.remove('-translate-x-full');
+                sidebar.classList.add('translate-x-0');
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                sidebar.classList.remove('translate-x-0');
+            }
+        });
+
+        document.getElementById('message-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+        
+            var messagesContainer = document.getElementById('messages');
+           
+            messagesContainer.scrollBy({
+                top: 300,
+                behavior: 'smooth' 
+            });
+
+            document.querySelector('input[name="message"]').value = '';
+        });
+    </script>
+</body>
+</html>
